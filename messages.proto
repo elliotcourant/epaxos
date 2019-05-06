@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package epaxos;
+
+enum SqlAction {
+    NONE = 0;
+    INSERT = 1;
+    UPDATE = 2;
+    DELETE = 3;
+}
+
+message SqlCommand {
+    // The name of the table being modified.
+    string Table = 1;
+
+    // The action being performed on the table.
+    SqlAction Action = 2;
+
+    // The primary key ID of the record being modified.
+    uint64 ID = 3;
+
+    // The fields that will be updated or inserted.
+    map<string, bytes> Fields = 4;
+}
+
+message KeyValueSetCommand {
+    // The key that we are setting.
+    bytes Key = 1;
+
+    // The value we are setting the key to.
+    bytes Values = 2;
+}
+
+message KeyValueDeleteCommand {
+    // The key that we are deleting.
+    bytes Key = 1;
+}
+
+message CommandRequest {
+    // The timestamp of the command from the original client.
+    uint64 Timestamp = 1;
+
+    oneof PotentialSqlCommand {
+        SqlCommand SqlCommand = 2;
+    }
+
+    oneof PotentialSetCommand {
+        KeyValueSetCommand SetCommand = 3;
+    }
+
+    oneof PotentialDeleteCommand {
+        KeyValueDeleteCommand DeleteCommand = 4;
+    }
+}
+
+message CommandResponse {
+
+}
+
+message JoinRequest {
+    
+}
+
+message JoinResponse {
+
+}
+
+service PaxosService {
+    rpc ExecuteCommand(CommandRequest) returns (CommandResponse) {}
+    rpc JoinCluster(JoinRequest) returns (JoinResponse) {}
+}
